@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabela Periódica Interativa</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fff; padding: 20px; }
+    .tabela {
+      display: grid;
+      grid-template-columns: repeat(18, 50px);
+      grid-auto-rows: 50px;
+      gap: 3px;
+    }
+    .elemento {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: default;
+    }
+    .info {
+      display: none;
+      position: absolute;
+      top: 55px; left: -50px;
+      width: 180px;
+      padding: 6px;
+      background: #fff;
+      color: #000;
+      border: 1px solid #ccc;
+      font-size: 12px;
+      z-index: 10;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .elemento:hover .info { display: block; }
+    .azul-claro { background: #00BCD4; }
+    .vermelho { background: #E91E63; }
+    .verde { background: #4CAF50; }
+    .laranja { background: #FFC107; color: #000; }
+    .verde-limao { background: #CDDC39; }
+    .roxo { background: #9C27B0; }
+    .espaco { background: transparent; pointer-events: none; }
+    @media (max-width: 900px) {
+      .tabela { grid-template-columns: repeat(18, 30px); grid-auto-rows: 30px; }
+      .info { width: 140px; font-size: 10px; top: 35px; }
+    }
+  </style>
+</head>
+<body>
+  <h2>Tabela Periódica Interativa</h2>
+  <div class="tabela" id="tabela"></div>
+
+  <script>
+    const dados = [
+      ["H","Hidrogênio",1,1.008,"vermelho",1,1],
+      ["He","Hélio",2,4.0026,"verde",18,1],
+      ["Li","Lítio",3,6.94,"azul-claro",1,2],
+      ["Be","Berílio",4,9.0122,"azul-claro",2,2],
+      ["B","Boro",5,10.81,"laranja",13,2],
+      ["C","Carbono",6,12.011,"vermelho",14,2],
+      ["N","Nitrogênio",7,14.007,"vermelho",15,2],
+      ["O","Oxigênio",8,15.999,"vermelho",16,2],
+      ["F","Flúor",9,18.998,"vermelho",17,2],
+      ["Ne","Neônio",10,20.180,"verde",18,2],
+      ["Na","Sódio",11,22.990,"azul-claro",1,3],
+      ["Mg","Magnésio",12,24.305,"azul-claro",2,3],
+      ["Al","Alumínio",13,26.982,"verde-limao",13,3],
+      ["Si","Silício",14,28.085,"laranja",14,3],
+      ["P","Fósforo",15,30.974,"vermelho",15,3],
+      ["S","Enxofre",16,32.06,"vermelho",16,3],
+      ["Cl","Cloro",17,35.45,"vermelho",17,3],
+      ["Ar","Argônio",18,39.948,"verde",18,3],
+      ["K","Potássio",19,39.098,"azul-claro",1,4],
+      ["Ca","Cálcio",20,40.078,"azul-claro",2,4],
+      ["Sc","Escândio",21,44.956,"verde-limao",3,4],
+      ["Ti","Titânio",22,47.867,"verde-limao",4,4],
+      ["V","Vanádio",23,50.942,"verde-limao",5,4],
+      ["Cr","Cromo",24,51.996,"verde-limao",6,4],
+      ["Mn","Manganês",25,54.938,"verde-limao",7,4],
+      ["Fe","Ferro",26,55.845,"verde-limao",8,4],
+      ["Co","Cobalto",27,58.933,"verde-limao",9,4],
+      ["Ni","Níquel",28,58.693,"verde-limao",10,4],
+      ["Cu","Cobre",29,63.546,"verde-limao",11,4],
+      ["Zn","Zinco",30,65.38,"verde-limao",12,4],
+      ["Ga","Gálio",31,69.723,"verde-limao",13,4],
+      ["Ge","Germânio",32,72.630,"laranja",14,4],
+      ["As","Arsênio",33,74.922,"laranja",15,4],
+      ["Se","Selênio",34,78.971,"vermelho",16,4],
+      ["Br","Bromo",35,79.904,"vermelho",17,4],
+      ["Kr","Criptônio",36,83.798,"verde",18,4],
+      ["Rb","Rubídio",37,85.468,"azul-claro",1,5],
+      ["Sr","Estrôncio",38,87.62,"azul-claro",2,5],
+      ["Y","Ítrio",39,88.906,"verde-limao",3,5],
+      ["Zr","Zircônio",40,91.224,"verde-limao",4,5],
+      ["Nb","Nióbio",41,92.906,"verde-limao",5,5],
+      ["Mo","Molibdênio",42,95.95,"verde-limao",6,5],
+      ["Tc","Tecnécio",43,98,"verde-limao",7,5],
+      ["Ru","Rutênio",44,101.07,"verde-limao",8,5],
+      ["Rh","Ródio",45,102.91,"verde-limao",9,5],
+      ["Pd","Paládio",46,106.42,"verde-limao",10,5],
+      ["Ag","Prata",47,107.87,"verde-limao",11,5],
+      ["Cd","Cádmio",48,112.41,"verde-limao",12,5],
+      ["In","Índio",49,114.82,"verde-limao",13,5],
+      ["Sn","Estanho",50,118.71,"verde-limao",14,5],
+      ["Sb","Antimônio",51,121.76,"laranja",15,5],
+      ["Te","Telúrio",52,127.60,"vermelho",16,5],
+      ["I","Iodo",53,126.90,"vermelho",17,5],
+      ["Xe","Xenônio",54,131.29,"verde",18,5],
+      ["Cs","Césio",55,132.91,"azul-claro",1,6],
+      ["Ba","Bário",56,137.33,"azul-claro",2,6],
+      ["La","Lantânio",57,138.91,"roxo",4,8],
+      ["Ce","Cério",58,140.12,"roxo",5,8],
+      ["Pr","Praseodímio",59,140.91,"roxo",6,8],
+      ["Nd","Neodímio",60,144.24,"roxo",7,8],
+      ["Pm","Promécio",61,145,"roxo",8,8],
+      ["Sm","Samário",62,150.36,"roxo",9,8],
+      ["Eu","Európio",63,151.96,"roxo",10,8],
+      ["Gd","Gadolínio",64,157.25,"roxo",11,8],
+      ["Tb","Térbio",65,158.93,"roxo",12,8],
+      ["Dy","Disprósio",66,162.50,"roxo",13,8],
+      ["Ho","Hólmio",67,164.93,"roxo",14,8],
+      ["Er","Érbio",68,167.26,"roxo",15,8],
+      ["Tm","Túlio",69,168.93,"roxo",16,8],
+      ["Yb","Itérbio",70,173.05,"roxo",17,8],
+      ["Lu","Lutécio",71,174.97,"roxo",18,8],
+      ["Hf","Háfnio",72,178.49,"verde-limao",4,6],
+      ["Ta","Tântalo",73,180.95,"verde-limao",5,6],
+      ["W","Tungstênio",74,183.84,"verde-limao",6,6],
+      ["Re","Renio",75,186.21,"verde-limao",7,6],
+      ["Os","Ósmio",76,190.23,"verde-limao",8,6],
+      ["Ir","Irídio",77,192.22,"verde-limao",9,6],
+      ["Pt","Platina",78,195.08,"verde-limao",10,6],
+      ["Au","Ouro",79,196.97,"verde-limao",11,6],
+      ["Hg","Mercúrio",80,200.59,"verde-limao",12,6],
+      ["Tl","Tálio",81,204.38,"verde-limao",13,6],
+      ["Pb","Chumbo",82,207.2,"verde-limao",14,6],
+      ["Bi","Bismuto",83,208.98,"verde-limao",15,6],
+      ["Po","Polônio",84,209,"vermelho",16,6],
+      ["At","Astato",85,210,"vermelho",17,6],
+      ["Rn","Radônio",86,222,"verde",18,6],
+      ["Fr","Frâncio",87,223,"azul-claro",1,7],
+      ["Ra","Rádio",88,226,"azul-claro",2,7],
+      ["Ac","Actínio",89,227,"roxo",4,9],
+      ["Th","Tório",90,232.04,"roxo",5,9],
+      ["Pa","Protactínio",91,231.04,"roxo",6,9],
+      ["U","Urânio",92,238.03,"roxo",7,9],
+      ["Np","Netúnio",93,237,"roxo",8,9],
+      ["Pu","Plutônio",94,244,"roxo",9,9],
+      ["Am","Amerício",95,243,"roxo",10,9],
+      ["Cm","Cúrio",96,247,"roxo",11,9],
+      ["Bk","Berquélio",97,247,"roxo",12,9],
+      ["Cf","Califórnio",98,251,"roxo",13,9],
+      ["Es","Einstênio",99,252,"roxo",14,9],
+      ["Fm","Férmio",100,257,"roxo",15,9],
+      ["Md","Mendelévio",101,258,"roxo",16,9],
+      ["No","Nobélio",102,259,"roxo",17,9],
+      ["Lr","Laurêncio",103,262,"roxo",18,9],
+      ["Rf","Rutherfórdio",104,267,"verde-limao",4,7],
+      ["Db","Dúbnio",105,268,"verde-limao",5,7],
+      ["Sg","Seabórgio",106,271,"verde-limao",6,7],
+      ["Bh","Bohrio",107,270,"verde-limao",7,7],
+      ["Hs","Hássio",108,277,"verde-limao",8,7],
+      ["Mt","Meitnério",109,276,"verde-limao",9,7],
+      ["Ds","Darmstádio",110,281,"verde-limao",10,7],
+      ["Rg","Roentgênio",111,282,"verde-limao",11,7],
+      ["Cn","Copernício",112,285,"verde-limao",12,7],
+      ["Nh","Nihônio",113,286,"verde-limao",13,7],
+      ["Fl","Fleróvio",114,289,"verde-limao",14,7],
+      ["Mc","Moscóvio",115,289,"verde-limao",15,7],
+      ["Lv","Livermório",116,293,"verde-limao",16,7],
+      ["Ts","Tennessino",117,294,"vermelho",17,7],
+      ["Og","Oganessônio",118,294,"verde",18,7]
+    ];
+
+    const tabela = document.getElementById("tabela");
+    dados.forEach(e => {
+      const [simb,nome,at,massa,cor,col,row] = e;
+      const el = document.createElement("div");
+      el.className = `elemento ${cor}`;
+      el.style.gridColumn = col;
+      el.style.gridRow = row;
+      el.textContent = simb;
+
+      const info = document.createElement("div");
+      info.className = "info";
+      info.innerHTML = `
+        <table>
+          <tr><th>Nome</th><td>${nome}</td></tr>
+          <tr><th>Nº atômico</th><td>${at}</td></tr>
+          <tr><th>Massa</th><td>${massa}</td></tr>
+        </table>`;
+      el.appendChild(info);
+      tabela.appendChild(el);
+    });
+  </script>
+
+</body>
+</html>
